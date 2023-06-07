@@ -43,7 +43,7 @@ app.post('/register', async (req, res) => {
     if (rows.length > 0) {
       return res.status(400).json({ error: 'Username or email already taken' });
     }
-    await pool.query('INSERT INTO users SET ?', { username, email, password });
+    await pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, password]);
     return res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
     console.error(err);
