@@ -1,4 +1,4 @@
-const jwt = require('../jwt');
+const jwt = require('./jwt');
 
 function authenticate(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];

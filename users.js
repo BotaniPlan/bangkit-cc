@@ -1,33 +1,33 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const jwt = require('../jwt');
-const pool = require('../db');
+const jwt = require('./jwt');
+const pool = require('./db');
 const router = express.Router();
 
-router.post('/register', (req, res) => {
-  const { username, email, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const sql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-  pool.query(sql, [username, email, hashedPassword], (err, result) => {
-    if (err) {
-      return res.status(500).json({ message: 'Failed to register user' });
-    }
-    const user = { id: result.insertId, username, email };
-    const token = jwt.generateToken(user);
-    return res.status(201).json({ user, token });
-  });
-});
+// router.post('/register', (req, res) => {
+//   const { username, email, password } = req.body;
+//   if (!username || !email || !password) {
+//     return res.status(400).json({ message: 'Missing required fields' });
+//   }
+//   const hashedPassword = bcrypt.hashSync(password, 10);
+//   const sql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+//   pool.query(sql, [username, email, hashedPassword], (err, result) => {
+//     if (err) {
+//       return res.status(500).json({ message: 'Failed to register user' });
+//     }
+//     const user = { id: result.insertId, username, email };
+//     const token = jwt.generateToken(user);
+//     return res.status(201).json({ user, token });
+//   });
+// });
 
-router.post('/login', (req, res) => {
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('../jwt');
-const pool = require('../db');
-const router = express.Router();
-});
+// router.post('/login', (req, res) => {
+// const express = require('express');
+// const bcrypt = require('bcrypt');
+// const jwt = require('./jwt');
+// const pool = require('./db');
+// const router = express.Router();
+// });
 
 router.post('/register', (req, res) => {
   const { username, email, password } = req.body;
