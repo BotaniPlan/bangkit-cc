@@ -13,8 +13,8 @@ const pool = mysql.createPool({
   host: '34.101.195.31',
   user: 'root',
   password: 'c23@ps261',
-  database: 'mydatabase',
-  connectionLimit: 10
+  database: 'botaniplan',
+  connectionLimit: 100
 });
 
 // middleware to verify JWT token
