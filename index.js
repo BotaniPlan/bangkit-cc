@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
 const app = express();
+app.use(express.json());
 const port = process.env.PORT || 8080;
 
 const jwtSecret = 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY4NjE1MjAwMywiaWF0IjoxNjg2MTUyMDAzfQ.psGlhK3SxnsCbZQgvtfK1R00bV8ukGq0ayNbb5d5QWc';
@@ -16,6 +17,13 @@ const pool = mysql.createPool({
   database: 'botaniplan',
   connectionLimit: 100
 });
+
+// let pool = mysql.createConnection({
+//     host: '34.101.195.31',
+//     user: 'root',
+//     password: 'c23@ps261',
+//     database: 'botaniplan'
+// });
 
 // middleware to verify JWT token
 function verifyToken(req, res, next) {
@@ -35,15 +43,12 @@ function verifyToken(req, res, next) {
 // handle user registration
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
   try {
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email]);
     if (rows.length > 0) {
       return res.status(400).json({ error: 'Username or email already taken' });
     }
-    await pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, password]);
+    await pool.query('INSERT INTO users SET ?', { username, email, password });
     return res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
     console.error(err);
