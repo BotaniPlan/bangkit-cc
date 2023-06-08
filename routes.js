@@ -4,29 +4,30 @@ const auth = require('./auth');
 const { getWeather, getElevation } = require('./weather');
 const { getPredictiveData } = require('./flask');
 const router = express.Router();
-
-//router.use('/users', users);
+const pool = require('./db');
 
 router.get('/weather', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.query;
   try {
     const weatherData = await getWeather(lat, lon);
-    //
     const dailyData = weatherData.daily;
-    let totalRain = 0;
     let totalHumidity = 0;
     let totalTemp = 0;
     for (let i = 0; i < dailyData.length; i++) {
-      totalRain += dailyData[i].rain;
       totalHumidity += dailyData[i].humidity;
       totalTemp += dailyData[i].temp.day;
     }
-    const avgRain = totalRain / dailyData.length;
     const avgHumidity = totalHumidity / dailyData.length;
     const avgTemp = totalTemp / dailyData.length;
-    //const { temp, humidity } = weatherData.current;
-    //const rainfall = weatherData.rain ? weatherData.rain['1h'] : 0;
-    return res.status(200).json({ avgTemp, avgHumidity, avgRain });
+    // Karena rain data tidak selalu ada, jadi di filter terlebih dahulu
+    const rainData = dailyData.filter(data => data.rain !== undefined);
+    let sumRain = 0;
+    if (rainData.length > 0) {
+      sumRain = rainData.reduce((acc, curr) => acc + curr.rain, 0);
+    }
+    const avgRain = sumRain / rainData.length; 
+    
+    return res.status(200).json({ weatherData, avgTemp, avgHumidity, avgRain });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to retrieve weather data' });
   }
@@ -56,6 +57,24 @@ router.get('/predict', auth.authenticate, async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: 'Failed to retrieve weather data' });
   }
+});
+
+router.get('/plants', auth.authenticate, async (req, res) => {
+  const ids = req.query.id;
+  if (!ids) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+  const sql = 'SELECT * FROM plants WHERE id IN (?)';
+  pool.query(sql, [ids], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to get plants data' });
+    }
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Plants data not available' });
+    }
+    const plants = results;
+    return res.status(200).json({ plants });
+  });
 });
 
 module.exports = router;
