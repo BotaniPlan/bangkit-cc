@@ -1,10 +1,10 @@
 const express = require('express');
 const auth = require('./auth');
-//const users = require('./users');
 const { getWeather, getElevation } = require('./weather');
 const { getPredictiveData } = require('./flask');
 const router = express.Router();
 const pool = require('./db');
+const axios = require('axios');
 
 router.get('/weather', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.query;
@@ -25,8 +25,8 @@ router.get('/weather', auth.authenticate, async (req, res) => {
     if (rainData.length > 0) {
       sumRain = rainData.reduce((acc, curr) => acc + curr.rain, 0);
     }
-    const avgRain = sumRain / rainData.length; 
-    
+    const avgRain = sumRain / rainData.length;
+
     return res.status(200).json({ avgTemp, avgHumidity, avgRain });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to retrieve weather data' });
@@ -40,8 +40,28 @@ router.get('/elevation', auth.authenticate, async (req, res) => {
     const elevation = elevationData.elevation || 0;
     return res.status(200).json({ elevation });
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to retrieve weather data' });
+    return res.status(500).json({ message: 'Failed to retrieve elevation data' });
   }
+});
+
+router.get('/city', auth.authenticate, async (req, res) => {
+  const { lat, lon } = req.query;
+
+  axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+    .then(response => {
+      let cityName = response.data.address.city;
+      if (!cityName) {
+        cityName = response.data.address.town;
+      }
+      if (cityName) {
+        cityName = cityName.replace(/(Kota|Kabupaten)\s/gi, '');
+      }
+      res.json({ city: cityName });
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({ error: 'Failed to get city name' });
+    });
 });
 
 router.get('/predict', auth.authenticate, async (req, res) => {
