@@ -27,7 +27,7 @@ router.get('/weather', auth.authenticate, async (req, res) => {
     }
     const avgRain = sumRain / rainData.length; 
     
-    return res.status(200).json({ weatherData, avgTemp, avgHumidity, avgRain });
+    return res.status(200).json({ avgTemp, avgHumidity, avgRain });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to retrieve weather data' });
   }
