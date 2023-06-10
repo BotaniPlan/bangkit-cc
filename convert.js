@@ -24,4 +24,4 @@ function getRainfallCategory(rainfall) {
     }
   }
 
-  module.exports = { convert };
+module.exports = { getRainfallCategory, getElevationCategory };

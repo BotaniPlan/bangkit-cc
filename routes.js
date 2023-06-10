@@ -6,6 +6,7 @@ const router = express.Router();
 const pool = require('./db');
 const axios = require('axios');
 const config = require('./config');
+const { getRainfallCategory, getElevationCategory } = require('./convert');
 
 router.get('/weather', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.query;
@@ -65,75 +66,63 @@ router.get('/city', auth.authenticate, async (req, res) => {
     });
 });
 
-router.post('/recommend', async (req, res) => {
+// Endpoint POST /recommend
+router.post('/recommend', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.body;
-
-  // Retrieve weather data
-  const weatherUrl = `${config.endpointUrl}/weather?lat=${lat}&lon=${lon}`;
-  let weatherData = null;
+  const token = req.headers.authorization.split(' ')[1];
   try {
-    const weatherResponse = await axios.get(weatherUrl);
-    weatherData = weatherResponse.data;
+    // Mengambil data weather, elevation, dan city dari endpoint yang sudah ada
+    const weatherResponse = await axios.get(`${config.endpointUrl}/weather?lat=${lat}&lon=${lon}`, { headers: { Authorization: `Bearer ${token}` } });
+    const elevationResponse = await axios.get(`${config.endpointUrl}/elevation?lat=${lat}&lon=${lon}`, { headers: { Authorization: `Bearer ${token}` } });
+    const cityResponse = await axios.get(`${config.endpointUrl}/city?lat=${lat}&lon=${lon}`, { headers: { Authorization: `Bearer ${token}` } });
+
+    // Ekstraksi data dari response
+    const { avgTemp, avgHumidity, avgRain } = weatherResponse.data;
+    const { elevation } = elevationResponse.data;
+    const { city } = cityResponse.data;
+    const rain = getRainfallCategory(avgRain);
+    const elev = getElevationCategory(elevation);
+
+    // Membuat request ke API Flask untuk mendapatkan rekomendasi
+    const avg_temp = avgTemp;
+    const humid = avgHumidity;
+    const rainfall = rain;
+    const altitude = elev;
+    const recommendationResponse = await axios.post(`${config.flaskApiUrl}/get-recommendation`, {
+      avg_temp,
+      humid,
+      rainfall,
+      altitude,
+      city
+    });
+
+    // Mengirimkan response dari API Flask ke client
+    res.status(200).json(recommendationResponse.data);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to retrieve weather data' });
-  }
-
-  // Retrieve elevation data
-  const elevationUrl = `${config.endpointUrl}/elevation?lat=${lat}&lon=${lon}`;
-  let elevationData = null;
-  try {
-    const elevationResponse = await axios.get(elevationUrl);
-    elevationData = elevationResponse.data;
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to retrieve elevation data' });
-  }
-
-  // Retrieve city name
-  const cityUrl = `${config.endpointUrl}/city?lat=${lat}&lon=${lon}`;
-  let cityData = null;
-  try {
-    const cityResponse = await axios.get(cityUrl);
-    cityData = cityResponse.data;
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to retrieve city data' });
-  }
-
-  // Prepare data for recommendation API
-  const { avgTemp, avgHumidity, avgRain } = weatherData;
-  const { elevation } = elevationData;
-  const { city } = cityData;
-  const rain = getRainfallCategory(avgRain);
-  const elev = getElevationCategory(elevation);
-
-  try {
-    const predictiveData = await getPredictiveData(avgTemp, avgHumidity, rain, elev, city);
-    return res.status(200).json({ predictiveData });
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to retrieve recommendation data' });
+    console.log(err);
+    res.status(500).json({ message: 'Failed to retrieve recommendation data' });
   }
 });
 
+
+// Endpoint POST /predict
 router.post('/predict', auth.authenticate, async (req, res) => {
-  const { lat, lon } = req.query;
+  const { tanaman, luas_panen, produksi, daerah } = req.body;
   try {
-    const weatherData = await getWeather(lat, lon);
-    const elevationData = await getElevation(lat, lon);
-    const { temp, humidity } = weatherData.main;
-    const rainfall = weatherData.rain ? weatherData.rain['1h'] : 0;
-    const elevation = elevationData.elevation || 0;
-    const predictiveData = await getPredictiveData(temp, humidity, rainfall, elevation);
-    return res.status(200).json({ weatherData, elevationData, predictiveData });
+    const predictResponse = await axios.post(`${config.flaskApiUrl}/get-price-prediction`, {
+      tanaman,
+      luas_panen,
+      produksi,
+      daerah
+    });
+
+    // Mengirimkan response dari API Flask ke client
+    res.status(200).json(predictResponse.data);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to retrieve weather data' });
+    console.log(err);
+    res.status(500).json({ message: 'Failed to retrieve recommendation data' });
   }
 });
-
-
 
 router.get('/plants', auth.authenticate, async (req, res) => {
   const ids = req.query.id;
