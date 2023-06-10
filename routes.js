@@ -5,6 +5,7 @@ const { getPredictiveData } = require('./flask');
 const router = express.Router();
 const pool = require('./db');
 const axios = require('axios');
+const config = require('./config');
 
 router.get('/weather', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.query;
@@ -64,7 +65,60 @@ router.get('/city', auth.authenticate, async (req, res) => {
     });
 });
 
-router.get('/predict', auth.authenticate, async (req, res) => {
+router.post('/recommend', async (req, res) => {
+  const { lat, lon } = req.body;
+
+  // Retrieve weather data
+  const weatherUrl = `${config.endpointUrl}/weather?lat=${lat}&lon=${lon}`;
+  let weatherData = null;
+  try {
+    const weatherResponse = await axios.get(weatherUrl);
+    weatherData = weatherResponse.data;
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to retrieve weather data' });
+  }
+
+  // Retrieve elevation data
+  const elevationUrl = `${config.endpointUrl}/elevation?lat=${lat}&lon=${lon}`;
+  let elevationData = null;
+  try {
+    const elevationResponse = await axios.get(elevationUrl);
+    elevationData = elevationResponse.data;
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to retrieve elevation data' });
+  }
+
+  // Retrieve city name
+  const cityUrl = `${config.endpointUrl}/city?lat=${lat}&lon=${lon}`;
+  let cityData = null;
+  try {
+    const cityResponse = await axios.get(cityUrl);
+    cityData = cityResponse.data;
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to retrieve city data' });
+  }
+
+  // Prepare data for recommendation API
+  const { avgTemp, avgHumidity, avgRain } = weatherData;
+  const { elevation } = elevationData;
+  const { city } = cityData;
+  const rain = getRainfallCategory(avgRain);
+  const elev = getElevationCategory(elevation);
+
+  try {
+    const predictiveData = await getPredictiveData(avgTemp, avgHumidity, rain, elev, city);
+    return res.status(200).json({ predictiveData });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to retrieve recommendation data' });
+  }
+});
+
+router.post('/predict', auth.authenticate, async (req, res) => {
   const { lat, lon } = req.query;
   try {
     const weatherData = await getWeather(lat, lon);
@@ -78,6 +132,8 @@ router.get('/predict', auth.authenticate, async (req, res) => {
     return res.status(500).json({ message: 'Failed to retrieve weather data' });
   }
 });
+
+
 
 router.get('/plants', auth.authenticate, async (req, res) => {
   const ids = req.query.id;

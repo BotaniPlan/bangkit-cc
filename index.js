@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(users);
 app.use(routes);
+app.use(model);
 
 app.listen(config.port, () => {
   console.log(`Server listening on port ${config.port}`);
