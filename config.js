@@ -12,5 +12,5 @@ module.exports = {
     openWeatherApiKey: '0c138a3868d5f4fc70bbf3b8a2354f6d',
     openMeteoApiUrl: 'https://api.open-meteo.com/v1',
     flaskApiUrl: 'https://botaniplan-model-7zyo647nsq-et.a.run.app', // ganti dengan cloud run model url
-    endpointUrl: 'http://botaniplan-7zyo647nsq-et.a.run.app' // ganti dengan endpoint cloud run
+    endpointUrl: 'https://botaniplan-7zyo647nsq-et.a.run.app' // ganti dengan endpoint cloud run
   };
