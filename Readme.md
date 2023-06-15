@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="image/BotaniPlan.png" alt="Konva logo" height="180" />
+  <img src="images/BotaniPlan.png" alt="Konva logo" height="300" />
 </p>
 
 <h1 align="center">BotaniPlan</h1>
@@ -52,7 +52,7 @@ The service available:
 ## Architecture
 
 <p align="center">
-  <img src="image/cloud architecture.png" alt="Konva logo" />
+  <img src="images/Architecture.jpg" alt="Konva logo" />
 </p>
 
 # Authentications
@@ -61,22 +61,6 @@ This service is using token for authentication. You should have an account to ac
 
 The token given is accessToken and refreshToken. The refreshToken is used to refresh the token. The accessToken is valid for 30 minutes. If you want to refresh the token, you need to send the refreshToken to the service. If the refreshToken is valid, you will get a new accessToken. If the refreshToken is not valid, you will get a error message.
 
-# Instructions
-
-## Predictions Service
-The predictions service is using imgUrl and endpoint id to retrieve predictions. The endpoint id is used to define what model to be used. So you should know what endpoint id you want to use. The endpoint id is:
-- cassava leaf : 4257194673539383296
-- rice leaf : 2528938316535955456
-- tomato leaf : 9197643464764817408
-
-For the imgUrl, it is image url that publicly accessible. The image should be in image format like (jpg, png, jpeg, etc.). The image url can be obtained when you upload your image to upload picture service, or search on google.
-
-If the prediction is successful, you will get a json object. The json object contains the prediction result. The prediction result contains the highest probability and the predicted class, with some additional information related to the class. The result will be stored as a history object.
-
-## Classifications service
-This service is like predictions service withoud storing the result as a history object. The result will be lost imedietely after the process.
-The endpoint id is: 
-- vegetables : 5666821356906348544
 
 # Environment
 
@@ -84,37 +68,25 @@ In order to run this project, you need to configure the following environment va
 
 ```bash
 #development
-HOST= {your application host, localhost if development}
-NODE_ENV = {your environment server}
+PORT=8080
+JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY4NjE1MjAwMywiaWF0IjoxNjg2MTUyMDAzfQ.psGlhK3SxnsCbZQgvtfK1R00bV8ukGq0ayNbb5d5QWc
 
-PORT= {your server port}
+# Database Configuration
+DB_CONNECTION_LIMIT=100
+DB_HOST=34.101.195.31
+DB_USER=root
+DB_PASSWORD=c23@ps261
+DB_DATABASE=botaniplan
 
-# node-postgres configuration
-PGUSER= {your database username}
-PGHOST= {your database host}
-PGPASSWORD= {your database password}
-PGDATABASE= {your database name}
-PGPORT= {your database port}
-PGURI= {your database uri if available}
+# Public API
+OPEN_WEATHER_API_KEY=0c138a3868d5f4fc70bbf3b8a2354f6d
+OPEN_METEO_API_URL=https://api.open-meteo.com/v1
 
-# JWT Token Key
-ACCESS_TOKEN_KEY= {define your own token key}
-REFRESH_TOKEN_KEY= {define your own refresh token}
-ACCESS_TOKEN_AGE = {define how long the access token is valid}
-
-# AI platform
-PROJECT_ID={your project id}
+# Flask & Endpoint URL
+FLASK_API_URL=https://botaniplan-model-7zyo647nsq-et.a.run.app
+ENDPOINT_URL=https://botaniplan-7zyo647nsq-et.a.run.app
 
 ```
-
-Then you can use the following image to create your own database:
-
-<a href="">
-  <img src="image/Tanamin%20Diagram-ERD.drawio.png" />
-</a>
-
-<p align="center">Databases ERD</p>
-
 
 ### Dependency
 
@@ -129,38 +101,19 @@ Then you can use the following image to create your own database:
 
 # Testing
 
-This Web service uses Postman to test.
-
-- You can download the Postman documentation [here](https://documenter.getpostman.com/view/12239151/Uz5DrdGT).
-
-If you want to contribute to this project, please contact me.
-
 # Pull Requests
 
-I'd be happy to review any pull requests that may better the TanamIn project, in particular if you have a bug fix, enhancement, or a new idea, you can contact us.
+I'd be happy to review any pull requests that may better the BotaniPlan project, in particular if you have a bug fix, enhancement, or a new idea, you can contact us.
 
 ## Contributors
 
 ### CC Member (Master Contributor)
 CC member is responsible for the development of the API service and deployment of the model. In sort, in this project CC is responsible for Backend, infrastructure, and DevOps.
-#### Individuals
-
-<a href="https://github.com/Bangkit-Capstone-Project/Cloud_computing/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Bangkit-Capstone-Project/Cloud_computing" />
-</a>
-
-<p>Shazi Awaludin</p>
 
 ### ML Member
-#### Individuals
-<a href="https://github.com/Bangkit-Capstone-Project/ML_Structuring_Model/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Bangkit-Capstone-Project/ML_Structuring_Model" />
-</a>
+
 <p>ML Member is who are contribute to create prediction and classification model that used in this web service. Without them, this service is nothing.</p>
 
 ### MD Member
-#### Individuals
-<a href="https://github.com/Bangkit-Capstone-Project/MobileDev_AppsProject/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Bangkit-Capstone-Project/MobileDev_AppsProject" />
-</a>
+
 <p>MD member is who are responsible to serve mobile applications based on Android and use this service as data source and more.</p>
