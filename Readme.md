@@ -86,18 +86,6 @@ module.exports = {
 
 ```
 
-### Dependency
-
-* [Hapi Server](https://www.npmjs.com/package/@hapi/hapi)
-* [JWT](https://www.npmjs.com/package/@hapi/jwt)
-* [Bcrypt](https://www.npmjs.com/package/bcrypt)
-* [DotEnv](https://www.npmjs.com/package/dotenv)
-* [Joi](https://www.npmjs.com/package/joi)
-* [Nanoid](https://www.npmjs.com/package/nanoid)
-* [node-pg-migrate](https://www.npmjs.com/package/node-pg-migrate)
-* [pg](https://www.npmjs.com/package/pg)
-
-# Testing
 
 # Pull Requests
 
@@ -106,12 +94,22 @@ I'd be happy to review any pull requests that may better the BotaniPlan project,
 ## Contributors
 
 ### CC Member (Master Contributor)
+
+* (CC) C058DSX2777 – M Fahmi Alfaris – Politeknik Negeri Banyuwangi
+* (CC) C151DKX3960 – Muhammad Helmi Yahya – Universitas Brawijaya
+
 CC member is responsible for the development of the API service and deployment of the model. In sort, in this project CC is responsible for Backend, infrastructure, and DevOps.
 
 ### ML Member
 
+* (ML) M305DSY2355 – Devina Margarita – Universitas Pembangunan Nasional “Veteran” Jawa Timur 
+* (ML) M159DSX0188 – Michael Eko Hartono – Universitas Ciputra
+
 <p>ML Member is who are contribute to create prediction and classification model that used in this web service. Without them, this service is nothing.</p>
 
 ### MD Member
+
+* (MD) A151DSX2280 – Raya Aldyen Dessario – Universitas Brawijaya
+* (MD) A151DSX2429 – Elang Sotya Putra Dumipta – Universitas Brawijaya
 
 <p>MD member is who are responsible to serve mobile applications based on Android and use this service as data source and more.</p>
